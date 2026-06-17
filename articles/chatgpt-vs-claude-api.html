@@ -1,14 +1,18 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ChatGPT vs Claude API 定价对比：开发者到底该选哪个？ | 工具宝</title>
-<meta name="description" content="GPT-4o、Claude Sonnet 4、o3 的 API 每百万 token 多少钱？缓存命中能省多少？本文逐项对比主流模型API定价，附实际场景成本计算。">
-<link rel="canonical" content="https://bmaster.cn/articles/chatgpt-vs-claude-api.html">
-<meta property="og:title" content="ChatGPT vs Claude API 定价对比">
-<meta property="og:description" content="主流AI模型API每百万token多少钱？缓存能省多少？附实际场景计算。">
+<title>ChatGPT vs Claude API Pricing: Which Should Developers Choose? | ToolMaster</title>
+<meta name="description" content="How much do GPT-4o, Claude Sonnet 4, o3, DeepSeek V3, and GLM-4.6 cost per million tokens? How much can prompt caching save? This guide compares mainstream model API pricing with real-world cost calculations.">
+<link rel="canonical" href="https://bmaster.cn/articles/chatgpt-vs-claude-api.html">
+<link rel="alternate" hreflang="en" href="https://bmaster.cn/articles/chatgpt-vs-claude-api.html">
+<link rel="alternate" hreflang="zh" href="https://bmaster.cn/zh/articles/chatgpt-vs-claude-api.html">
+<link rel="alternate" hreflang="x-default" href="https://bmaster.cn/articles/chatgpt-vs-claude-api.html">
+<meta property="og:title" content="ChatGPT vs Claude API Pricing: Which Should Developers Choose?">
+<meta property="og:description" content="How much do mainstream AI models cost per million tokens? How much can caching save? With real-world scenario calculations.">
 <meta property="og:type" content="article">
+<meta property="og:url" content="https://bmaster.cn/articles/chatgpt-vs-claude-api.html">
 <meta property="og:image" content="https://aicosts.bmaster.cn/og-image.png">
 <meta name="theme-color" content="#0d1117">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -17,12 +21,15 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#fff;color:#1a1a1a;line-height:1.8}
+.lang-switch{position:fixed;top:16px;right:16px;z-index:100}
+.lang-switch a{display:inline-block;padding:6px 14px;background:#0d1117;color:#fff;border-radius:20px;font-size:.85em;font-weight:600;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.lang-switch a:hover{background:#238636}
 .article{max-width:720px;margin:0 auto;padding:40px 20px 60px}
 .article h1{font-size:1.8em;line-height:1.4;margin-bottom:8px}
 .article .meta{color:#999;font-size:.85em;margin-bottom:30px;padding-bottom:20px;border-bottom:1px solid #eee}
 .article h2{font-size:1.35em;margin:36px 0 12px;color:#111}
 .article h3{font-size:1.1em;margin:24px 0 8px;color:#222}
-.article p{margin-bottom:16px;color:#333}
+.article p{margin-bottom:16px;color:#333;font-size:1em}
 .article ul,.article ol{margin:0 0 16px 20px;color:#333}
 .article li{margin-bottom:6px}
 .article blockquote{border-left:4px solid #58a6ff;background:#f6f8fa;padding:12px 20px;margin:20px 0;border-radius:0 8px 8px 0;color:#444}
@@ -33,157 +40,164 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .article tr:nth-child(even){background:#fafbfc}
 .article .highlight{background:#fff3cd;padding:2px 6px;border-radius:4px;font-weight:600}
 .article code{background:#f6f8fa;padding:2px 6px;border-radius:4px;font-size:.9em;font-family:Consolas,monospace}
-.article .nav-back{display:inline-block;margin-bottom:20px;color:#1976d2;font-size:.9em}
+.article .nav-back{display:inline-block;margin-bottom:20px;color:#1976d2;font-size:.9em;text-decoration:none}
 .calc-box{background:#f6f8fa;border:1px solid #e1e4e8;border-radius:10px;padding:20px;margin:20px 0}
 .calc-box .calc-title{font-weight:700;margin-bottom:8px;color:#111}
 .calc-box .calc-result{font-size:1.3em;color:#238636;font-weight:700;margin-top:8px}
 .cta-box{background:linear-gradient(135deg,#0d1117,#161b22);color:#fff;border-radius:12px;padding:30px;text-align:center;margin:36px 0}
 .cta-box h3{color:#fff;margin-bottom:8px}
 .cta-box p{color:#8b949e;margin-bottom:16px}
-.cta-box a{display:inline-block;padding:12px 36px;background:#238636;color:#fff;border-radius:8px;font-weight:700;font-size:1.1em}
+.cta-box a{display:inline-block;padding:12px 36px;background:#238636;color:#fff;border-radius:8px;font-weight:700;font-size:1.1em;text-decoration:none}
+.cta-box a:hover{background:#2ea043}
 .footer{text-align:center;padding:24px;color:#999;font-size:.85em;border-top:1px solid #eee}
 .footer a{color:#666;margin:0 6px}
 </style>
 </head>
 <body>
 
+<div class="lang-switch">
+  <a href="/zh/articles/chatgpt-vs-claude-api.html">中文</a>
+</div>
+
 <article class="article">
-  <a class="nav-back" href="/">← 返回首页</a>
-  <h1>ChatGPT vs Claude API 定价对比：开发者到底该选哪个？</h1>
-  <div class="meta">工具宝 · 2026年6月 · 6分钟阅读</div>
+  <a class="nav-back" href="/">← Back to Home</a>
+  <h1>ChatGPT vs Claude API Pricing: Which Should Developers Choose?</h1>
+  <div class="meta">ToolMaster · June 2026 · 6 min read</div>
 
-  <p>如果你是开发者，可能一直在纠结一个问题：到底用 ChatGPT 的 API 还是 Claude 的 API？除了模型能力的差异，<strong>价格是决定性因素</strong>。</p>
+  <p>If you're a developer, you've probably been wrestling with one question: should you use the ChatGPT API or the Claude API? Beyond differences in model capability, <strong>price is the deciding factor</strong>.</p>
 
-  <p>本文用 2026 年 6 月的最新定价数据，从输入/输出 token 单价、缓存折扣、实际场景成本三个维度做深度对比。</p>
+  <p>This guide uses the latest June 2026 pricing data to do a deep comparison across three dimensions: per-token input/output rates, caching discounts, and real-world scenario costs.</p>
 
-  <h2>一、主流模型 API 定价（2026年6月）</h2>
+  <h2>1. Mainstream Model API Pricing (June 2026)</h2>
 
-  <p>以下价格均为每 100 万 token 的费用（美元）：</p>
+  <p>All prices below are per 1 million tokens, in USD:</p>
 
   <table>
-    <tr><th>模型</th><th>输入 ($/1M)</th><th>输出 ($/1M)</th><th>缓存读取 ($/1M)</th><th>上下文窗口</th></tr>
+    <tr><th>Model</th><th>Input ($/1M)</th><th>Output ($/1M)</th><th>Cache Read ($/1M)</th><th>Context Window</th></tr>
     <tr><td><strong>GPT-4o</strong></td><td>$2.50</td><td>$10.00</td><td>$1.25</td><td>128K</td></tr>
     <tr><td>GPT-4o-mini</td><td>$0.15</td><td>$0.60</td><td>$0.075</td><td>128K</td></tr>
     <tr><td><strong>o3</strong></td><td>$2.00</td><td>$8.00</td><td>$0.50</td><td>200K</td></tr>
     <tr><td><strong>Claude Sonnet 4</strong></td><td>$3.00</td><td>$15.00</td><td>$0.30</td><td>200K</td></tr>
-    <tr><td>Claude Opus 4</strong></td><td>$15.00</td><td>$75.00</td><td>$1.50</td><td>200K</td></tr>
+    <tr><td>Claude Opus 4</td><td>$15.00</td><td>$75.00</td><td>$1.50</td><td>200K</td></tr>
     <tr><td>Claude Haiku 3.5</td><td>$0.80</td><td>$4.00</td><td>$0.08</td><td>200K</td></tr>
     <tr><td>DeepSeek V3</td><td>$0.27</td><td>$1.10</td><td>$0.07</td><td>64K</td></tr>
     <tr><td>GLM-4.6</td><td>$0.60</td><td>$2.20</td><td>—</td><td>128K</td></tr>
   </table>
 
   <blockquote>
-    <strong>第一印象：</strong>输入价格方面，DeepSeek V3 和 GLM-4.6 便宜得离谱（不到 GPT-4o 的 1/4）。GPT-4o 的输入比 Claude Sonnet 4 便宜（$2.50 vs $3.00），但 Claude 的<strong>缓存读取价格只有 $0.30</strong>，远低于 GPT-4o 的 $1.25——这是 Claude 的杀手锏。
+    <strong>First impression:</strong> On raw input price, DeepSeek V3 and GLM-4.6 are shockingly cheap (under a quarter of GPT-4o's rate). GPT-4o's input is cheaper than Claude Sonnet 4 ($2.50 vs $3.00), but Claude's <strong>cache read price is only $0.30</strong> — far below GPT-4o's $1.25. That is Claude's killer feature.
   </blockquote>
 
-  <h2>二、Prompt Caching：被忽视的省钱利器</h2>
+  <h2>2. Prompt Caching: The Overlooked Money-Saver</h2>
 
-  <p>很多人不知道，API 调用中有很大一部分 token 是重复的——比如系统提示词、文档上下文、代码库前缀。如果你用了 Prompt Caching，这些重复部分只需付正常价格的 <strong>10%-50%</strong>。</p>
+  <p>Many people don't realize that a large fraction of tokens in API calls are repetitive — system prompts, document context, codebase prefixes. If you enable Prompt Caching, these repeated portions cost only <strong>10%–50%</strong> of the normal price.</p>
 
-  <p>各模型的缓存折扣对比：</p>
+  <p>Cache discount comparison across models:</p>
 
   <table>
-    <tr><th>模型</th><th>正常输入</th><th>缓存读取</th><th>折扣率</th></tr>
-    <tr><td>GPT-4o</td><td>$2.50</td><td>$1.25</td><td>5折</td></tr>
-    <tr><td>Claude Sonnet 4</td><td>$3.00</td><td>$0.30</td><td><strong>1折</strong></td></tr>
-    <tr><td>Claude Haiku 3.5</td><td>$0.80</td><td>$0.08</td><td><strong>1折</strong></td></tr>
-    <tr><td>DeepSeek V3</td><td>$0.27</td><td>$0.07</td><td>~2.6折</td></tr>
+    <tr><th>Model</th><th>Normal Input</th><th>Cache Read</th><th>Discount</th></tr>
+    <tr><td>GPT-4o</td><td>$2.50</td><td>$1.25</td><td>50% off</td></tr>
+    <tr><td>o3</td><td>$2.00</td><td>$0.50</td><td>75% off</td></tr>
+    <tr><td><strong>Claude Sonnet 4</strong></td><td>$3.00</td><td>$0.30</td><td><strong>90% off</strong></td></tr>
+    <tr><td>Claude Opus 4</td><td>$15.00</td><td>$1.50</td><td>90% off</td></tr>
+    <tr><td>Claude Haiku 3.5</td><td>$0.80</td><td>$0.08</td><td><strong>90% off</strong></td></tr>
+    <tr><td>DeepSeek V3</td><td>$0.27</td><td>$0.07</td><td>~74% off</td></tr>
   </table>
 
-  <p>这意味着：<strong>如果你的应用有大量重复上下文（比如代码助手、RAG 系统），Claude 的缓存优势能大幅拉低实际成本。</strong></p>
+  <p>The takeaway: <strong>if your application has a lot of repeated context (e.g. a coding assistant, RAG system, or long-running agent), Claude's caching advantage can dramatically cut your real-world costs.</strong> A 90% discount on cached input makes Claude cheaper than GPT-4o in high-context workloads — despite its higher headline price.</p>
 
-  <h2>三、实际场景成本计算</h2>
+  <h2>3. Real-World Cost Scenarios</h2>
 
-  <h3>场景1：日常对话助手</h3>
-  <p>假设你每天跟 AI 聊天 20 轮，每轮平均输入 500 token、输出 800 token。无缓存。</p>
+  <h3>Scenario 1: Daily Chat Assistant</h3>
+  <p>Suppose you chat with an AI 20 rounds per day, averaging 500 input tokens and 800 output tokens per round. No caching.</p>
 
   <div class="calc-box">
-    <div class="calc-title">每日 token 用量</div>
-    <p>输入：500 × 20 = 10,000 token/天<br>
-    输出：800 × 20 = 16,000 token/天</p>
-    <div class="calc-title">月成本（30天）</div>
+    <div class="calc-title">Daily Token Usage</div>
+    <p>Input: 500 × 20 = 10,000 tokens/day<br>
+    Output: 800 × 20 = 16,000 tokens/day</p>
+    <div class="calc-title">Monthly Cost (30 days)</div>
     <table>
-      <tr><th>模型</th><th>月成本</th></tr>
-      <tr><td>GPT-4o</td><td>$0.53</td></tr>
-      <tr><td>Claude Sonnet 4</td><td>$0.69</td></tr>
-      <tr><td>GPT-4o-mini</td><td>$0.03</td></tr>
-      <tr><td>DeepSeek V3</td><td>$0.07</td></tr>
+      <tr><th>Model</th><th>Monthly Cost</th></tr>
+      <tr><td>GPT-4o</td><td>$5.55</td></tr>
+      <tr><td>Claude Sonnet 4</td><td>$8.10</td></tr>
+      <tr><td>GPT-4o-mini</td><td>$0.33</td></tr>
+      <tr><td>DeepSeek V3</td><td>$0.61</td></tr>
     </table>
-    <p class="calc-result">结论：轻度使用选 mini 或 DeepSeek，每月不到 $1</p>
+    <p class="calc-result">Verdict: For light use, pick mini or DeepSeek — under $1/month.</p>
   </div>
 
-  <h3>场景2：代码助手（带缓存）</h3>
-  <p>每次请求携带 50,000 token 的代码上下文（可缓存）+ 500 token 新输入，输出 2,000 token。每天 50 次调用。</p>
+  <h3>Scenario 2: Coding Assistant (with Caching)</h3>
+  <p>Each request carries 50,000 tokens of code context (cacheable) plus 500 tokens of new input, and outputs 2,000 tokens. That's 50 calls per day.</p>
 
   <div class="calc-box">
-    <div class="calc-title">每月成本对比（缓存命中率 80%）</div>
+    <div class="calc-title">Monthly Cost Comparison (80% Cache Hit Rate)</div>
     <table>
-      <tr><th>模型</th><th>无缓存</th><th>有缓存</th><th>节省</th></tr>
-      <tr><td>GPT-4o</td><td>$81.25</td><td>$45.75</td><td>44%</td></tr>
-      <tr><td>Claude Sonnet 4</td><td>$97.50</td><td>$41.70</td><td><strong>57%</strong></td></tr>
-      <tr><td>DeepSeek V3</td><td>$8.78</td><td>$4.13</td><td>53%</td></tr>
+      <tr><th>Model</th><th>No Cache</th><th>With Cache</th><th>Savings</th></tr>
+      <tr><td>GPT-4o</td><td>$219.38</td><td>$144.38</td><td>34%</td></tr>
+      <tr><td><strong>Claude Sonnet 4</strong></td><td>$272.25</td><td><strong>$110.25</strong></td><td><strong>60%</strong></td></tr>
+      <tr><td>DeepSeek V3</td><td>$23.75</td><td>$11.75</td><td>50%</td></tr>
     </table>
-    <p class="calc-result">Claude Sonnet 4 有缓存后比 GPT-4o 更便宜！</p>
+    <p class="calc-result">With caching, Claude Sonnet 4 becomes cheaper than GPT-4o!</p>
   </div>
 
-  <p>这就是 Prompt Caching 的威力：Claude 输入单价更高，但缓存后 $0.30/1M 远低于 GPT-4o 的 $1.25/1M。在代码助手这类高上下文场景中，Claude 反而更省钱。</p>
+  <p>This is the power of Prompt Caching: Claude's per-token input price is higher, but at $0.30/1M for cache reads it's far below GPT-4o's $1.25/1M. In high-context scenarios like coding assistants, Claude actually ends up <strong>cheaper overall</strong> once caching is enabled.</p>
 
-  <h3>场景3：批量数据处理</h3>
-  <p>处理 10,000 篇文章，每篇输入 2,000 token，输出 500 token 摘要。无缓存。</p>
+  <h3>Scenario 3: Batch Document Processing</h3>
+  <p>Processing 10,000 articles — 2,000 input tokens each, producing 500-token summaries. No caching.</p>
 
   <div class="calc-box">
     <table>
-      <tr><th>模型</th><th>总输入成本</th><th>总输出成本</th><th>合计</th></tr>
-      <tr><td>GPT-4o</td><td>$50</td><td>$50</td><td>$100</td></tr>
-      <tr><td>Claude Sonnet 4</td><td>$60</td><td>$75</td><td>$135</td></tr>
-      <tr><td>GPT-4o-mini</td><td>$3</td><td>$3</td><td>$6</td></tr>
+      <tr><th>Model</th><th>Total Input Cost</th><th>Total Output Cost</th><th>Total</th></tr>
+      <tr><td>GPT-4o</td><td>$50.00</td><td>$50.00</td><td>$100.00</td></tr>
+      <tr><td>Claude Sonnet 4</td><td>$60.00</td><td>$75.00</td><td>$135.00</td></tr>
+      <tr><td>GPT-4o-mini</td><td>$3.00</td><td>$3.00</td><td>$6.00</td></tr>
       <tr><td>DeepSeek V3</td><td>$5.40</td><td>$5.50</td><td>$10.90</td></tr>
     </table>
-    <p class="calc-result">批量处理选 mini 或 DeepSeek，成本差 10-20 倍</p>
+    <p class="calc-result">For batch jobs, pick mini or DeepSeek — a 10–20× cost difference.</p>
   </div>
 
-  <h2>四、订阅 vs API：什么时候该切换？</h2>
+  <h2>4. Subscription vs API: When Should You Switch?</h2>
 
-  <p>很多人默认订阅 ChatGPT Plus（$20/月），但如果你知道自己的实际 token 用量，API 可能更便宜。以 GPT-4o 为例：</p>
+  <p>Many people default to a ChatGPT Plus subscription ($20/month). But if you know your actual token usage, the API can be much cheaper. Here's the break-even analysis using GPT-4o, assuming roughly 1,000 input + 1,000 output tokens per message:</p>
 
   <table>
-    <tr><th>使用强度</th><th>月 token 量</th><th>API 月成本</th><th>vs $20 订阅</th></tr>
-    <tr><td>轻度（每天10轮对话）</td><td>~0.5M</td><td>~$0.25</td><td><strong>API 省 98%</strong></td></tr>
-    <tr><td>中度（每天50轮对话）</td><td>~3M</td><td>~$1.50</td><td>API 省 92%</td></tr>
-    <tr><td>重度（每天200轮对话）</td><td>~15M</td><td>~$7.50</td><td>API 省 62%</td></tr>
-    <tr><td>超重度（每天500轮+图像）</td><td>~40M+</td><td>~$20+</td><td>订阅更划算</td></tr>
+    <tr><th>Usage Level</th><th>Monthly Tokens</th><th>API Monthly Cost</th><th>vs $20 Subscription</th></tr>
+    <tr><td>Light (10 msgs/day)</td><td>~0.6M</td><td>~$3.75</td><td><strong>API saves 81%</strong></td></tr>
+    <tr><td>Medium (50 msgs/day)</td><td>~3M</td><td>~$18.75</td><td>Roughly break-even</td></tr>
+    <tr><td>Heavy (200 msgs/day)</td><td>~12M</td><td>~$75.00</td><td>Subscription is cheaper</td></tr>
+    <tr><td>Super heavy (500+ msgs/day)</td><td>~30M+</td><td>~$187+</td><td>Subscription wins easily</td></tr>
   </table>
 
   <blockquote>
-    <strong>结论：</strong>大多数人（每天使用不超过 100 次）用 API 比订阅便宜得多。只有超高频率用户才值得订阅。想知道你属于哪一档？用我们的 <a href="https://aicosts.bmaster.cn/">成本计算器</a> 算一下。
+    <strong>Conclusion:</strong> Most people (fewer than ~50 messages per day) are better off on the API than on a $20/month subscription. Only very high-frequency users benefit from subscribing. Not sure which category you fall into? Run the numbers with our <a href="https://aicosts.bmaster.cn/">AI Cost Calculator</a>.
   </blockquote>
 
-  <h2>五、选择建议</h2>
+  <h2>5. Recommendations</h2>
 
   <ul>
-    <li><strong>日常对话/写作：</strong>DeepSeek V3 或 GPT-4o-mini，成本极低</li>
-    <li><strong>代码助手（高上下文）：</strong>Claude Sonnet 4 + Prompt Caching，综合成本最低</li>
-    <li><strong>复杂推理：</strong>o3（输入已降至 $2/1M，性价比大幅提升）</li>
-    <li><strong>批量数据处理：</strong>GPT-4o-mini 或 DeepSeek V3，便宜到可以忽略</li>
-    <li><strong>顶级质量需求：</strong>Claude Opus 4（贵但最强，适合关键任务）</li>
+    <li><strong>Daily chat / writing:</strong> DeepSeek V3 or GPT-4o-mini — extremely low cost.</li>
+    <li><strong>Coding assistant (high context):</strong> Claude Sonnet 4 + Prompt Caching — lowest effective cost.</li>
+    <li><strong>Complex reasoning:</strong> o3 (input dropped to $2/1M, much better value than before).</li>
+    <li><strong>Batch data processing:</strong> GPT-4o-mini or DeepSeek V3 — cheap enough to ignore.</li>
+    <li><strong>Top-tier quality:</strong> Claude Opus 4 (expensive but the strongest — reserve for mission-critical tasks).</li>
   </ul>
 
   <div class="cta-box">
-    <h3>💡 对比 300+ 模型的实时 API 定价</h3>
-    <p>数据来自 OpenRouter，实时更新，支持人民币/美元切换</p>
-    <a href="https://aicosts.bmaster.cn/#/models">查看模型比价 →</a>
+    <h3>💡 Compare Real-Time API Pricing for 300+ Models</h3>
+    <p>Data sourced from OpenRouter, updated in real time, with USD/CNY toggle</p>
+    <a href="https://aicosts.bmaster.cn/#/models">View Model Price Comparison →</a>
   </div>
 
-  <p>相关阅读：<a href="/articles/ai-cost-report-2026.html">2026年AI工具订阅成本年度报告</a> | <a href="/articles/ai-coding-save-money.html">AI编程工具省钱攻略</a></p>
+  <p>Related reading: <a href="/articles/ai-cost-report-2026.html">AI Tool Subscription Cost Report 2026</a> | <a href="/articles/ai-coding-save-money.html">AI Coding Tool Money-Saving Guide</a></p>
 
 </article>
 
 <div class="footer">
-  <a href="/">首页</a>
-  <a href="https://aicosts.bmaster.cn/">AI成本计算器</a>
-  <a href="https://tools.bmaster.cn/">在线工具</a>
+  <a href="/">Home</a>
+  <a href="https://aicosts.bmaster.cn/">AI Cost Calculator</a>
+  <a href="https://tools.bmaster.cn/">Online Tools</a>
   <br><br>
-  © 2026 工具宝 bmaster.cn
+  © 2026 ToolMaster bmaster.cn
 </div>
 
 </body>
