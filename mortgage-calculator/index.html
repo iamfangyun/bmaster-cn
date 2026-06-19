@@ -3,9 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mortgage Calculator — Real Monthly Cost with PMI, Tax, Insurance & Hidden Fees</title>
+<title>Mortgage Calculator — Real Monthly Payment with PMI, Tax & Insurance</title>
 <meta name="description" content="The honest mortgage calculator. See your real monthly payment including PMI, property tax, home insurance, and HOA. No signup. No email required. Just answers.">
 <meta name="keywords" content="mortgage calculator, PMI calculator, home loan calculator, monthly payment, property tax, closing costs, amortization">
+<link rel="canonical" href="https://bmaster.cn/mortgage-calculator/">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://bmaster.cn/mortgage-calculator/">
+<meta property="og:title" content="Mortgage Calculator — Real Monthly Cost with PMI & Tax">
+<meta property="og:description" content="See your real monthly payment including PMI, property tax, home insurance, HOA, and closing costs. No signup. No email required.">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Mortgage Calculator — Real Monthly Cost">
+<meta name="twitter:description" content="See your real monthly payment including PMI, property tax, and closing costs.">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -28,13 +37,7 @@
     "Closing costs breakdown",
     "Early payoff calculator with extra payments",
     "State property tax presets"
-  ],
-  "aggregateRating": {
-    "@type": "AggregateRating",
-    "ratingValue": "4.8",
-    "ratingCount": "127",
-    "bestRating": "5"
-  }
+  ]
 }
 </script>
 <style>
@@ -385,8 +388,10 @@ function fmt0(n){ return Math.round(n).toLocaleString(); }
 
 // ===================== CORE MATH =====================
 function monthlyPI(principal, annualRate, years){
-  var r = annualRate/12, n = years*12;
-  if(r===0) return principal/n;
+  if(principal <= 0) return 0;
+  var n = years*12;
+  if(annualRate === 0) return principal / n; // 0% interest: simple division
+  var r = annualRate/12;
   return principal*(r*Math.pow(1+r,n))/(Math.pow(1+r,n)-1);
 }
 
@@ -560,11 +565,14 @@ function calculate(){
   document.getElementById('interestNote').textContent = interestLabel;
   
   document.getElementById('totalPMI').textContent = needsPMI ? fmt(displayAmort.totalPMI) : '$0';
+  var pmiStat = document.getElementById('pmiStat');
   if(needsPMI){
+    pmiStat.className = 'stat warn';
     var pmiYr = Math.ceil(displayAmort.pmiRemovedMonth/12);
     document.getElementById('pmiNote').textContent = 'removed at year ' + pmiYr + ' (78% LTV)';
   } else {
-    document.getElementById('pmiNote').textContent = 'none (≥20% down)';
+    pmiStat.className = 'stat good';
+    document.getElementById('pmiNote').textContent = 'none (≥20% down) ✓';
   }
   
   // True cost — use actual payoff duration
