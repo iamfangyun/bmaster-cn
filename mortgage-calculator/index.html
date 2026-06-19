@@ -389,7 +389,6 @@ function amortize(loanAmount, homeValue, annualRate, years, extraMonthly){
     if(principalPay >= balance){
       principalPay = balance;
       totalInterest += interest;
-      totalPaid = principalPay + interest;
       balance = 0;
     } else {
       balance -= principalPay;
@@ -504,25 +503,32 @@ function calculate(){
     legend.appendChild(lg);
   });
   
-  // Stats
-  document.getElementById('totalInterest').textContent = fmt(baseAmort.totalInterest);
-  document.getElementById('interestNote').textContent = 'over ' + years + ' years';
+  // Use extra amortization for stats if user is making extra payments
+  var displayAmort = extra > 0 ? extraAmort : baseAmort;
   
-  document.getElementById('totalPMI').textContent = needsPMI ? fmt(baseAmort.totalPMI) : '$0';
+  // Stats
+  document.getElementById('totalInterest').textContent = fmt(displayAmort.totalInterest);
+  var interestLabel = extra > 0 ? 'over ' + (displayAmort.months/12).toFixed(1) + ' yrs (with extra)' : 'over ' + years + ' years';
+  document.getElementById('interestNote').textContent = interestLabel;
+  
+  document.getElementById('totalPMI').textContent = needsPMI ? fmt(displayAmort.totalPMI) : '$0';
   if(needsPMI){
-    var pmiYr = Math.ceil(baseAmort.pmiRemovedMonth/12);
+    var pmiYr = Math.ceil(displayAmort.pmiRemovedMonth/12);
     document.getElementById('pmiNote').textContent = 'removed at year ' + pmiYr + ' (78% LTV)';
   } else {
     document.getElementById('pmiNote').textContent = 'none (≥20% down)';
   }
   
-  // True cost
-  var totalTax = propTaxMonthly*12*years;
-  var totalIns = insMonthly*12*years;
-  var trueCost = homePrice + baseAmort.totalInterest + totalTax + totalIns + baseAmort.totalPMI;
+  // True cost — use actual payoff duration
+  var actualYears = displayAmort.months / 12;
+  var totalTax = propTaxMonthly*12*actualYears;
+  var totalIns = insMonthly*12*actualYears;
+  var trueCost = homePrice + displayAmort.totalInterest + totalTax + totalIns + displayAmort.totalPMI;
   document.getElementById('trueCost').textContent = fmt(trueCost);
   var mult = (trueCost/homePrice).toFixed(1);
-  document.getElementById('trueCostNote').textContent = mult + '× the list price';
+  var tcNote = mult + '× the list price';
+  if(extra > 0) tcNote += ' (' + (years - actualYears).toFixed(1) + ' yrs shorter)';
+  document.getElementById('trueCostNote').textContent = tcNote;
   
   document.getElementById('loanAmount').textContent = fmt(loanAmount);
   document.getElementById('ltvNote').textContent = ltv.toFixed(0) + '% LTV (' + downPct.toFixed(0) + '% down)';
@@ -532,14 +538,14 @@ function calculate(){
   var pmiCard = document.getElementById('pmiAlertCard');
   if(needsPMI){
     pmiCard.style.display = 'block';
-    var pmiYr2 = Math.ceil(baseAmort.pmiRemovedMonth/12);
+    var pmiYr2 = Math.ceil(displayAmort.pmiRemovedMonth/12);
     pmiAlert.className = 'alert warn';
     pmiAlert.innerHTML = 
       '<div class="icon">⚠️</div>' +
       '<div>You\'re putting down <b>'+downPct.toFixed(0)+'%</b>, so you\'ll pay <b>'+fmt(pmiMonthly)+'/month</b> in PMI. ' +
-      'That\'s <b>'+fmt(baseAmort.totalPMI)+' wasted</b> over '+baseAmort.pmiMonths+' months. ' +
+      'That\'s <b>'+fmt(displayAmort.totalPMI)+' wasted</b> over '+displayAmort.pmiMonths+' months. ' +
       'PMI auto-cancels at <b>year '+pmiYr2+'</b> (78% LTV). ' +
-      'If you can put down <b>20%</b> ('+fmt(homePrice*0.2)+'), you save '+fmt(baseAmort.totalPMI)+' entirely.</div>';
+      'If you can put down <b>20%</b> ('+fmt(homePrice*0.2)+'), you save '+fmt(displayAmort.totalPMI)+' entirely.</div>';
   } else {
     pmiCard.style.display = 'block';
     pmiAlert.className = 'alert good';
@@ -554,7 +560,7 @@ function calculate(){
     {label:'Appraisal & inspection', val: 800},
     {label:'Escrow & recording fees', val: 600},
     {label:'Discount points (optional)', val: homePrice*0.008},
-    {label:'Prepaid tax & insurance', val: totalTax/12*3 + insurance/12*3},
+    {label:'Prepaid tax & insurance (3 mo)', val: propTaxMonthly*3 + insMonthly*3},
   ];
   var ccHTML = '';
   ccItems.forEach(function(item){
@@ -577,18 +583,18 @@ function calculate(){
     document.getElementById('extraAlert').innerHTML = 
       '<div class="icon">💡</div><div>Paying an extra <b>'+fmt(extra)+'/month</b> saves you <b>'+fmt(saved)+'</b> in interest '+
       'and pays off your loan <b>'+yearsSaved.toFixed(1)+' years earlier</b>. '+
-      'That\'s a guaranteed return of <b>'+((saved/(extra*extraAmort.months))*100).toFixed(0)+'%</b> on your extra payments.</div>';
+      'That\'s equivalent to a <b>guaranteed '+(rate*100).toFixed(1)+'% return</b> on your extra payments — every dollar you pay early saves you that much in interest.</div>';
   } else {
     extraResults.classList.remove('show');
   }
   
-  // Amortization chart (SVG)
-  drawAmortChart(baseAmort.yearlyData, loanAmount);
+  // Amortization chart (SVG) — reflects actual scenario (with extra if applicable)
+  drawAmortChart(displayAmort.yearlyData, loanAmount);
   
   // Amortization table
   var tbody = document.getElementById('amortBody');
   tbody.innerHTML = '';
-  baseAmort.yearlyData.forEach(function(y){
+  displayAmort.yearlyData.forEach(function(y){
     var equity = loanAmount - y.balance;
     var pctEquity = (equity/loanAmount*100);
     var tr = document.createElement('tr');
