@@ -509,17 +509,6 @@ function calculate(){
   if(hoa > 0) parts.push('HOA ' + fmt(hoa));
   document.getElementById('breakdownText').innerHTML = parts.join(' · ');
   
-  // PMI drop note
-  var pmiDropEl = document.getElementById('pmiDropNote');
-  if(needsPMI && displayAmort.pmiRemovedMonth > 0){
-    var paymentAfterPMI = pi + propTaxMonthly + insMonthly + hoa;
-    var dropYr = Math.ceil(displayAmort.pmiRemovedMonth/12);
-    pmiDropEl.innerHTML = 'After PMI is removed at <b>year ' + dropYr + '</b>, payment drops to <b style="color:var(--green)">' + fmt(paymentAfterPMI) + '/mo</b>';
-    pmiDropEl.style.display = 'block';
-  } else {
-    pmiDropEl.style.display = 'none';
-  }
-  
   // Stacked bar
   var segments = [
     {label:'P&I', value:pi, color:'#3b82f6'},
@@ -551,6 +540,17 @@ function calculate(){
   
   // Use extra amortization for stats if user is making extra payments
   var displayAmort = extra > 0 ? extraAmort : baseAmort;
+  
+  // PMI drop note
+  var pmiDropEl = document.getElementById('pmiDropNote');
+  if(needsPMI && displayAmort.pmiRemovedMonth > 0){
+    var paymentAfterPMI = pi + propTaxMonthly + insMonthly + hoa;
+    var dropYr = Math.ceil(displayAmort.pmiRemovedMonth/12);
+    pmiDropEl.innerHTML = 'After PMI is removed at <b>year ' + dropYr + '</b>, payment drops to <b style="color:var(--green)">' + fmt(paymentAfterPMI) + '/mo</b>';
+    pmiDropEl.style.display = 'block';
+  } else {
+    pmiDropEl.style.display = 'none';
+  }
   
   // Stats
   document.getElementById('totalInterest').textContent = fmt(displayAmort.totalInterest);
@@ -741,6 +741,12 @@ document.getElementById('taxSlider').addEventListener('input', function(){
   document.getElementById('propTax').value = parseFloat(this.value).toFixed(2);
   calculate();
 });
+// Fix floating point on initial load
+(function(){
+  var el = document.getElementById('propTax');
+  var v = parseFloat(el.value);
+  if(!isNaN(v)) el.value = v.toFixed(2);
+})();
 document.getElementById('propTax').addEventListener('input', function(){
   document.getElementById('taxSlider').value = Math.min(3, parseFloat(this.value)||0);
 });
@@ -758,8 +764,8 @@ document.querySelectorAll('.state-btn').forEach(function(btn){
   btn.addEventListener('click', function(){
     document.querySelectorAll('.state-btn').forEach(function(b){ b.classList.remove('active'); });
     this.classList.add('active');
-    document.getElementById('propTax').value = this.dataset.tax;
-    document.getElementById('taxSlider').value = this.dataset.tax;
+    document.getElementById('propTax').value = parseFloat(this.dataset.tax).toFixed(2);
+    document.getElementById('taxSlider').value = parseFloat(this.dataset.tax).toFixed(2);
     var stateName = this.textContent;
     document.getElementById('taxHint').textContent = stateName + ': ' + this.dataset.tax + '%';
     calculate();
@@ -786,7 +792,7 @@ document.getElementById('resetBtn').addEventListener('click', function(){
   document.getElementById('downSlider').value = 10;
   document.getElementById('rate').value = 7;
   document.getElementById('term').value = 30;
-  document.getElementById('propTax').value = 1.1;
+  document.getElementById('propTax').value = '1.10';
   document.getElementById('taxSlider').value = 1.1;
   document.getElementById('insurance').value = 1800;
   document.getElementById('hoa').value = 0;
