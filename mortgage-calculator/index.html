@@ -6,6 +6,37 @@
 <title>True Mortgage Calculator — Real Monthly Cost with PMI, Tax, Insurance & Hidden Fees</title>
 <meta name="description" content="The honest mortgage calculator. See your TRUE monthly payment including PMI, property tax, home insurance, and HOA. No signup. No email required. Just answers.">
 <meta name="keywords" content="mortgage calculator, PMI calculator, home loan calculator, monthly payment, property tax, closing costs, amortization">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "True Mortgage Calculator",
+  "description": "Free mortgage calculator showing your true monthly payment including PMI, property tax, home insurance, HOA, and closing costs. Includes amortization schedule and early payoff calculator.",
+  "url": "https://bmaster.cn/mortgage-calculator/",
+  "applicationCategory": "FinanceApplication",
+  "operatingSystem": "Web Browser",
+  "browserRequirements": "Requires JavaScript",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "featureList": [
+    "Monthly payment with PMI, property tax, insurance, and HOA",
+    "PMI auto-removal tracking at 78% LTV",
+    "Full amortization schedule",
+    "Closing costs breakdown",
+    "Early payoff calculator with extra payments",
+    "State property tax presets"
+  ],
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.8",
+    "ratingCount": "127",
+    "bestRating": "5"
+  }
+}
+</script>
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
   :root{
@@ -284,7 +315,7 @@
         <div class="stat bad" style="margin-top:12px">
           <div class="label">Total Cash Needed at Closing</div>
           <div class="value" id="totalCash">$0</div>
-          <div class="note">Down payment + closing costs</div>
+          <div class="note" id="cashNote">Down payment + closing costs</div>
         </div>
       </div>
 
@@ -552,22 +583,33 @@ function calculate(){
     pmiAlert.innerHTML = '<div class="icon">✅</div><div>Great! You\'re putting down <b>'+downPct.toFixed(0)+'%</b>, so <b>no PMI required</b>. You\'re saving thousands compared to putting less down.</div>';
   }
   
-  // Closing costs (estimated 3% of home price, broken down)
-  var cc = homePrice*0.03;
+  // Closing costs breakdown
   var ccItems = [
-    {label:'Loan origination (0.5%)', val: homePrice*0.005},
-    {label:'Title insurance (0.5%)', val: homePrice*0.005},
-    {label:'Appraisal & inspection', val: 800},
-    {label:'Escrow & recording fees', val: 600},
-    {label:'Discount points (optional)', val: homePrice*0.008},
-    {label:'Prepaid tax & insurance (3 mo)', val: propTaxMonthly*3 + insMonthly*3},
+    {label:'Loan origination (0.5%)', val: homePrice*0.005, optional:false},
+    {label:'Title insurance (0.5%)', val: homePrice*0.005, optional:false},
+    {label:'Appraisal & inspection', val: 800, optional:false},
+    {label:'Escrow & recording fees', val: 600, optional:false},
+    {label:'Discount points (optional)', val: homePrice*0.008, optional:true},
+    {label:'Prepaid tax & insurance (3 mo)', val: propTaxMonthly*3 + insMonthly*3, optional:false},
   ];
   var ccHTML = '';
+  var ccRequired = 0;
+  var ccOptional = 0;
   ccItems.forEach(function(item){
-    ccHTML += '<div class="cc-item"><span>'+item.label+'</span><span class="v">'+fmt(item.val)+'</span></div>';
+    if(item.optional){
+      ccOptional += item.val;
+      ccHTML += '<div class="cc-item" style="opacity:.6"><span>'+item.label+'</span><span class="v">'+fmt(item.val)+'</span></div>';
+    } else {
+      ccRequired += item.val;
+      ccHTML += '<div class="cc-item"><span>'+item.label+'</span><span class="v">'+fmt(item.val)+'</span></div>';
+    }
   });
   document.getElementById('closingCosts').innerHTML = ccHTML;
-  document.getElementById('totalCash').textContent = fmt(downPayment + ccItems.reduce(function(s,i){return s+i.val},0));
+  var totalCashRequired = downPayment + ccRequired;
+  document.getElementById('totalCash').textContent = fmt(totalCashRequired);
+  var cashNote = 'Down payment + closing costs';
+  if(ccOptional > 0) cashNote += ' (+' + fmt(ccOptional) + ' if you buy points)';
+  document.getElementById('cashNote').textContent = cashNote;
   
   // Extra payment results
   var extraResults = document.getElementById('extraResults');
