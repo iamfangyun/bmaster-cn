@@ -3,15 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>True Mortgage Calculator — Real Monthly Cost with PMI, Tax, Insurance & Hidden Fees</title>
-<meta name="description" content="The honest mortgage calculator. See your TRUE monthly payment including PMI, property tax, home insurance, and HOA. No signup. No email required. Just answers.">
+<title>Mortgage Calculator — Real Monthly Cost with PMI, Tax, Insurance & Hidden Fees</title>
+<meta name="description" content="The honest mortgage calculator. See your real monthly payment including PMI, property tax, home insurance, and HOA. No signup. No email required. Just answers.">
 <meta name="keywords" content="mortgage calculator, PMI calculator, home loan calculator, monthly payment, property tax, closing costs, amortization">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "True Mortgage Calculator",
-  "description": "Free mortgage calculator showing your true monthly payment including PMI, property tax, home insurance, HOA, and closing costs. Includes amortization schedule and early payoff calculator.",
+  "name": "Mortgage Calculator",
+  "description": "Free mortgage calculator showing your real monthly payment including PMI, property tax, home insurance, HOA, and closing costs. Includes amortization schedule and early payoff calculator.",
   "url": "https://bmaster.cn/mortgage-calculator/",
   "applicationCategory": "FinanceApplication",
   "operatingSystem": "Web Browser",
@@ -152,7 +152,7 @@
 <div class="wrap">
   <!-- Header -->
   <div class="header">
-    <h1><span>True Mortgage Calculator</span></h1>
+    <h1><span>Mortgage Calculator</span></h1>
     <p class="sub">See your <b>real</b> monthly payment — every fee, every hidden cost, no signup.</p>
     <div class="badges">
       <span class="badge">✓ No email required</span>
@@ -182,7 +182,7 @@
           <span class="input-suffix">% of price</span>
         </div>
         <div class="slider-wrap">
-          <input type="range" class="slider" id="downSlider" min="0" max="50" step="0.5" value="10">
+          <input type="range" class="slider" id="downSlider" min="0" max="100" step="0.5" value="10">
         </div>
       </div>
 
@@ -234,7 +234,7 @@
           <label>Home Insurance</label>
           <div class="input-group">
             <span class="input-prefix">$</span>
-            <input type="number" id="insurance" value="1400" min="0" step="50">
+            <input type="number" id="insurance" value="1800" min="0" step="50">
             <span class="input-suffix">/yr</span>
           </div>
         </div>
@@ -255,9 +255,11 @@
           <input type="number" id="extra" value="0" min="0" step="25">
         </div>
         <div class="slider-wrap">
-          <input type="range" class="slider" id="extraSlider" min="0" max="1000" step="25" value="0">
+          <input type="range" class="slider" id="extraSlider" min="0" max="2000" step="25" value="0">
         </div>
       </div>
+      
+      <button class="btn" id="resetBtn" style="width:100%;margin-top:8px">↻ Reset to Defaults</button>
     </div>
 
     <!-- ===================== RESULTS PANEL ===================== -->
@@ -266,9 +268,10 @@
       <!-- Big total monthly payment -->
       <div class="result-card">
         <div class="big-num">
-          <div class="label">Your True Monthly Payment</div>
+          <div class="label">Your Monthly Payment</div>
           <div class="value"><span class="currency">$</span><span id="totalMonthly">0</span></div>
           <div class="breakdown" id="breakdownText"></div>
+          <div id="pmiDropNote" style="margin-top:6px;font-size:.8rem;display:none"></div>
         </div>
 
         <!-- Stacked bar breakdown -->
@@ -292,7 +295,7 @@
           <div class="note" id="pmiNote"></div>
         </div>
         <div class="stat bad">
-          <div class="label">True Cost of Your Home</div>
+          <div class="label">Total Cost of Your Home</div>
           <div class="value" id="trueCost">$0</div>
           <div class="note" id="trueCostNote">price + interest + tax + ins + PMI</div>
         </div>
@@ -347,7 +350,7 @@
           See why the first few years feel like paying rent — most of your money goes to interest, not equity.
         </p>
         <div class="chart-wrap">
-          <svg id="amortChart" viewBox="0 0 600 200" preserveAspectRatio="none"></svg>
+          <svg id="amortChart" viewBox="0 0 600 200"></svg>
         </div>
         <div class="table-toggle">
           <button class="btn" id="showTable">Show Full Amortization Schedule</button>
@@ -355,7 +358,7 @@
         <table class="amort-table" id="amortTable">
           <thead>
             <tr>
-              <th>Year</th><th>Payment</th><th>Principal</th><th>Interest</th><th>Balance</th><th>Equity</th>
+              <th>Year</th><th>Payment</th><th>Principal</th><th>Interest</th><th>PMI</th><th>Balance</th><th>Equity</th>
             </tr>
           </thead>
           <tbody id="amortBody"></tbody>
@@ -366,7 +369,7 @@
   </div>
 
   <div class="footer">
-    <p>Calculations verified against Bankrate, Zillow, and NerdWallet published values.</p>
+    <p>Calculations use standard mortgage amortization formulas.</p>
     <p>This tool is 100% free, runs entirely in your browser, and collects zero data.</p>
     <p style="margin-top:8px"><a href="https://bmaster.cn">bmaster.cn</a> — Tools that actually work.</p>
   </div>
@@ -438,12 +441,13 @@ function amortize(loanAmount, homeValue, annualRate, years, extraMonthly){
     
     // Yearly aggregation
     var yr = Math.ceil(month/12);
-    if(!yearlyData[yr]) yearlyData[yr] = {year:yr, pay:0, principal:0, interest:0, balance:balance, pmi:pmiMonthly};
+    if(!yearlyData[yr]) yearlyData[yr] = {year:yr, pay:0, principal:0, interest:0, balance:balance, pmi:pmiMonthly, pmiTotal:0};
     yearlyData[yr].pay += piPay + extraMonthly + pmiMonthly;
     yearlyData[yr].principal += principalPay;
     yearlyData[yr].interest += interest;
     yearlyData[yr].balance = balance;
     yearlyData[yr].pmi = pmiMonthly;
+    yearlyData[yr].pmiTotal += pmiMonthly;
   }
   
   return {
@@ -504,6 +508,17 @@ function calculate(){
   if(pmiMonthly > 0) parts.push('PMI ' + fmt(pmiMonthly));
   if(hoa > 0) parts.push('HOA ' + fmt(hoa));
   document.getElementById('breakdownText').innerHTML = parts.join(' · ');
+  
+  // PMI drop note
+  var pmiDropEl = document.getElementById('pmiDropNote');
+  if(needsPMI && displayAmort.pmiRemovedMonth > 0){
+    var paymentAfterPMI = pi + propTaxMonthly + insMonthly + hoa;
+    var dropYr = Math.ceil(displayAmort.pmiRemovedMonth/12);
+    pmiDropEl.innerHTML = 'After PMI is removed at <b>year ' + dropYr + '</b>, payment drops to <b style="color:var(--green)">' + fmt(paymentAfterPMI) + '/mo</b>';
+    pmiDropEl.style.display = 'block';
+  } else {
+    pmiDropEl.style.display = 'none';
+  }
   
   // Stacked bar
   var segments = [
@@ -585,10 +600,10 @@ function calculate(){
   
   // Closing costs breakdown
   var ccItems = [
-    {label:'Loan origination (0.5%)', val: homePrice*0.005, optional:false},
+    {label:'Loan origination (1%)', val: homePrice*0.01, optional:false},
     {label:'Title insurance (0.5%)', val: homePrice*0.005, optional:false},
-    {label:'Appraisal & inspection', val: 800, optional:false},
-    {label:'Escrow & recording fees', val: 600, optional:false},
+    {label:'Appraisal & inspection', val: 1200, optional:false},
+    {label:'Escrow & recording fees', val: 800, optional:false},
     {label:'Discount points (optional)', val: homePrice*0.008, optional:true},
     {label:'Prepaid tax & insurance (3 mo)', val: propTaxMonthly*3 + insMonthly*3, optional:false},
   ];
@@ -644,6 +659,7 @@ function calculate(){
       '<td>'+fmt(y.pay)+'</td>'+
       '<td>'+fmt(y.principal)+'</td>'+
       '<td>'+fmt(y.interest)+'</td>'+
+      '<td>'+(y.pmiTotal > 0 ? fmt(y.pmiTotal) : '—')+'</td>'+
       '<td>'+fmt(y.balance)+'</td>'+
       '<td>'+fmt(equity)+' ('+pctEquity.toFixed(0)+'%)</td>';
     tbody.appendChild(tr);
@@ -653,7 +669,10 @@ function calculate(){
 // SVG chart: stacked area of principal vs interest
 function drawAmortChart(yearlyData, loanAmount){
   var svg = document.getElementById('amortChart');
-  var W=600, H=200, padL=50, padB=30, padT=10, padR=10;
+  var rect = svg.getBoundingClientRect();
+  var W = Math.round(rect.width) || 600, H = 200;
+  svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+  var padL=50, padB=30, padT=10, padR=10;
   var cw = W-padL-padR, ch = H-padT-padB;
   
   if(!yearlyData.length){ svg.innerHTML=''; return; }
@@ -715,11 +734,11 @@ document.getElementById('downSlider').addEventListener('input', function(){
   calculate();
 });
 document.getElementById('downPct').addEventListener('input', function(){
-  document.getElementById('downSlider').value = Math.min(50, parseFloat(this.value)||0);
+  document.getElementById('downSlider').value = Math.min(100, parseFloat(this.value)||0);
 });
 
 document.getElementById('taxSlider').addEventListener('input', function(){
-  document.getElementById('propTax').value = this.value;
+  document.getElementById('propTax').value = parseFloat(this.value).toFixed(2);
   calculate();
 });
 document.getElementById('propTax').addEventListener('input', function(){
@@ -731,7 +750,7 @@ document.getElementById('extraSlider').addEventListener('input', function(){
   calculate();
 });
 document.getElementById('extra').addEventListener('input', function(){
-  document.getElementById('extraSlider').value = Math.min(1000, parseFloat(this.value)||0);
+  document.getElementById('extraSlider').value = Math.min(2000, parseFloat(this.value)||0);
 });
 
 // State select buttons
@@ -760,8 +779,38 @@ document.getElementById('homePrice').addEventListener('blur', function(){
   if(!isNaN(v)) this.value = v.toLocaleString();
 });
 
+// Reset button
+document.getElementById('resetBtn').addEventListener('click', function(){
+  document.getElementById('homePrice').value = '400,000';
+  document.getElementById('downPct').value = 10;
+  document.getElementById('downSlider').value = 10;
+  document.getElementById('rate').value = 7;
+  document.getElementById('term').value = 30;
+  document.getElementById('propTax').value = 1.1;
+  document.getElementById('taxSlider').value = 1.1;
+  document.getElementById('insurance').value = 1800;
+  document.getElementById('hoa').value = 0;
+  document.getElementById('extra').value = 0;
+  document.getElementById('extraSlider').value = 0;
+  document.querySelectorAll('.state-btn').forEach(function(b){
+    b.classList.toggle('active', b.textContent.trim() === 'US Avg');
+  });
+  document.getElementById('taxHint').textContent = 'US avg: 1.1%';
+  calculate();
+});
+
 // Initial calculation
 calculate();
+
+// Redraw chart on resize
+var resizeTimer;
+window.addEventListener('resize', function(){
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(function(){
+    var homePrice = num('homePrice');
+    if(homePrice > 0) calculate();
+  }, 200);
+});
 </script>
 </body>
 </html>
