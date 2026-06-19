@@ -297,7 +297,7 @@
         <div class="stat bad">
           <div class="label">Total Cost of Your Home</div>
           <div class="value" id="trueCost">$0</div>
-          <div class="note" id="trueCostNote">price + interest + tax + ins + PMI</div>
+          <div class="note" id="trueCostNote">price + interest + tax + ins + HOA + PMI</div>
         </div>
         <div class="stat">
           <div class="label">Loan Amount</div>
@@ -355,6 +355,7 @@
         <div class="table-toggle">
           <button class="btn" id="showTable">Show Full Amortization Schedule</button>
         </div>
+        <div style="overflow-x:auto">
         <table class="amort-table" id="amortTable">
           <thead>
             <tr>
@@ -363,6 +364,7 @@
           </thead>
           <tbody id="amortBody"></tbody>
         </table>
+        </div>
       </div>
 
     </div>
@@ -377,7 +379,7 @@
 
 <script>
 // ===================== PARSER =====================
-function num(id){ return parseFloat(document.getElementById(id).value.replace(/,/g,'')) || 0; }
+function num(id){ var v = parseFloat(document.getElementById(id).value.replace(/,/g,'')); return (isNaN(v) || v < 0) ? 0 : v; }
 function fmt(n){ return '$' + Math.round(n).toLocaleString(); }
 function fmt0(n){ return Math.round(n).toLocaleString(); }
 
@@ -569,7 +571,8 @@ function calculate(){
   var actualYears = displayAmort.months / 12;
   var totalTax = propTaxMonthly*12*actualYears;
   var totalIns = insMonthly*12*actualYears;
-  var trueCost = homePrice + displayAmort.totalInterest + totalTax + totalIns + displayAmort.totalPMI;
+  var totalHOA = hoa*12*actualYears;
+  var trueCost = homePrice + displayAmort.totalInterest + totalTax + totalIns + totalHOA + displayAmort.totalPMI;
   document.getElementById('trueCost').textContent = fmt(trueCost);
   var mult = (trueCost/homePrice).toFixed(1);
   var tcNote = mult + '× the list price';
@@ -693,17 +696,20 @@ function drawAmortChart(yearlyData, loanAmount){
     svgStr += '<text x="'+(padL-6)+'" y="'+(yPos+3)+'" fill="#6b7280" font-size="9" text-anchor="end">$'+Math.round(yVal/1000)+'k</text>';
   }
   
-  // Bars
+  // Bars — 3 segments: Interest (bottom), PMI (middle), Principal (top)
   yearlyData.forEach(function(y, idx){
     var x = padL + idx*gap + gap*0.15;
-    var totalH = (y.pay/maxY)*ch;
     var intH = (y.interest/maxY)*ch;
-    var prinH = totalH - intH;
+    var pmiH = (y.pmiTotal/maxY)*ch;
+    var prinH = (y.principal/maxY)*ch;
+    var baseY = padT + ch;
     
     // Interest (bottom, red)
-    svgStr += '<rect x="'+x+'" y="'+(padT+ch-intH)+'" width="'+barW+'" height="'+intH+'" fill="#ef4444" rx="2"/>';
+    if(intH > 0) svgStr += '<rect x="'+x+'" y="'+(baseY-intH)+'" width="'+barW+'" height="'+intH+'" fill="#ef4444" rx="2"/>';
+    // PMI (middle, yellow)
+    if(pmiH > 0) svgStr += '<rect x="'+x+'" y="'+(baseY-intH-pmiH)+'" width="'+barW+'" height="'+pmiH+'" fill="#f59e0b" rx="1"/>';
     // Principal (top, blue)
-    svgStr += '<rect x="'+x+'" y="'+(padT+ch-totalH)+'" width="'+barW+'" height="'+prinH+'" fill="#3b82f6" rx="2"/>';
+    if(prinH > 0) svgStr += '<rect x="'+x+'" y="'+(baseY-intH-pmiH-prinH)+'" width="'+barW+'" height="'+prinH+'" fill="#3b82f6" rx="2"/>';
     
     // Year label every 5 years or first/last
     if(idx===0 || (idx+1)%5===0 || idx===yearlyData.length-1){
@@ -712,10 +718,13 @@ function drawAmortChart(yearlyData, loanAmount){
   });
   
   // Legend
-  svgStr += '<rect x="'+(W-100)+'" y="'+padT+'" width="10" height="10" fill="#3b82f6" rx="2"/>';
-  svgStr += '<text x="'+(W-86)+'" y="'+(padT+9)+'" fill="#9ca3af" font-size="9">Principal</text>';
-  svgStr += '<rect x="'+(W-100)+'" y="'+(padT+16)+'" width="10" height="10" fill="#ef4444" rx="2"/>';
-  svgStr += '<text x="'+(W-86)+'" y="'+(padT+25)+'" fill="#9ca3af" font-size="9">Interest</text>';
+  var lx = W-100;
+  svgStr += '<rect x="'+lx+'" y="'+padT+'" width="10" height="10" fill="#3b82f6" rx="2"/>';
+  svgStr += '<text x="'+(lx+14)+'" y="'+(padT+9)+'" fill="#9ca3af" font-size="9">Principal</text>';
+  svgStr += '<rect x="'+lx+'" y="'+(padT+14)+'" width="10" height="10" fill="#f59e0b" rx="2"/>';
+  svgStr += '<text x="'+(lx+14)+'" y="'+(padT+23)+'" fill="#9ca3af" font-size="9">PMI</text>';
+  svgStr += '<rect x="'+lx+'" y="'+(padT+28)+'" width="10" height="10" fill="#ef4444" rx="2"/>';
+  svgStr += '<text x="'+(lx+14)+'" y="'+(padT+37)+'" fill="#9ca3af" font-size="9">Interest</text>';
   
   svg.innerHTML = svgStr;
 }
