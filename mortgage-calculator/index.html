@@ -480,7 +480,20 @@ function calculate(){
   var hoa = num('hoa');
   var extra = num('extra');
   
-  if(homePrice <= 0){ return; }
+  if(homePrice <= 0){
+    // Clear all displays instead of leaving stale data
+    document.getElementById('totalMonthly').textContent = '0';
+    document.getElementById('totalInterest').textContent = '$0';
+    document.getElementById('totalPMI').textContent = '$0';
+    document.getElementById('trueCost').textContent = '$0';
+    document.getElementById('loanAmount').textContent = '$0';
+    document.getElementById('breakdownText').innerHTML = 'Enter a home price to calculate';
+    var sb = document.getElementById('stackBar'); if(sb) sb.innerHTML='';
+    var lg = document.getElementById('stackLegend'); if(lg) lg.innerHTML='';
+    var svg = document.getElementById('amortChart'); if(svg) svg.innerHTML='';
+    var at = document.getElementById('amortTable'); if(at && at.querySelector('tbody')) at.querySelector('tbody').innerHTML='';
+    return;
+  }
   if(downPct > 100) downPct = 100;
   
   var downPayment = homePrice * downPct/100;
