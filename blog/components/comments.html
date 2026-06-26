@@ -1,0 +1,55 @@
+<!--
+  giscus Comments Component
+
+  SETUP INSTRUCTIONS:
+
+  1. Go to https://github.com/apps/giscus
+  2. Click "Install" and select your repository
+  3. Enable Discussions in your repository settings
+  4. Configure your preferences:
+     - Repository: your-username/your-repo
+     - Page ↔️ Discussions mapping: pathname
+     - Discussion title: 📝 {title}
+     - Theme: light (or preferred_color_scheme)
+     - Lazy loading: ✅
+  5. Copy your configuration values below
+
+  CURRENT CONFIGURATION:
+  - Repository: [UPDATE THIS]
+  - Repository ID: [UPDATE THIS]
+  - Category: Announcements
+  - Category ID: [UPDATE THIS]
+-->
+
+<div class="comments-section">
+  <h3>💬 Comments</h3>
+  <div id="comments">
+    <!-- Comments will be loaded here by giscus -->
+  </div>
+
+  <!-- Load giscus script -->
+  <script src="/blog/assets/js/comments.js"></script>
+
+  <!-- Fallback message if JavaScript is disabled -->
+  <noscript>
+    <p>Please enable JavaScript to view the comments powered by giscus.</p>
+  </noscript>
+</div>
+
+<style>
+.comments-section {
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+}
+
+.comments-section h3 {
+  font-size: 1.3em;
+  margin-bottom: 24px;
+  color: var(--text);
+}
+
+#comments {
+  min-height: 200px;
+}
+</style>
