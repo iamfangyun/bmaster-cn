@@ -22,6 +22,8 @@
 <meta property="article:tag" content="Hermes">
 <meta property="article:tag" content="Pi Agent">
 <meta property="article:tag" content="Claude Code">
+<meta property="article:tag" content="飞书集成">
+<meta property="article:tag" content="企业协作">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="stylesheet" href="/blog/assets/css/styles.css">
 <style>
@@ -73,7 +75,7 @@
     <div class="article-meta">
       <span>发布时间：2026年6月26日</span>
       <span>·</span>
-      <span>阅读时长 8 分钟</span>
+      <span>阅读时长 9 分钟</span>
       <span>·</span>
       <span>难度级别：中等</span>
     </div>
@@ -90,6 +92,7 @@
           <li><a href="#5分钟快速解决方案">5分钟快速解决方案</a></li>
           <li><a href="#深度分析为什么-hermes-会触发限流">深度分析：为什么 Hermes 会触发限流</a></li>
           <li><a href="#功能对比与恢复方案">功能对比与恢复方案</a></li>
+          <li><a href="#飞书集成">飞书集成（企业级功能）</a></li>
           <li><a href="#为什么不选-claude-code">为什么不选 Claude Code</a></li>
           <li><a href="#常见问题解答">常见问题解答</a></li>
           <li><a href="#总结">总结</a></li>
@@ -359,6 +362,103 @@ pi install qmd                         # 语义搜索</code></pre>
 
       <p><strong>总耗时</strong>：约 10-15 分钟完成完整配置</p>
 
+      <hr>
+
+      <h3 id="飞书集成">飞书集成（企业级功能）</h3>
+
+      <p>除了本地使用，Pi Agent 还支持与飞书/Lark 无缝集成，实现团队协作场景下的 AI 辅助编程。这是 Hermes 原生支持的重要功能，Pi Agent 通过扩展也能完美实现。</p>
+
+      <h4>核心功能对比</h4>
+
+      <table>
+        <thead>
+          <tr>
+            <th>功能</th>
+            <th>Hermes + 飞书</th>
+            <th>Pi + 飞书</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>消息收发</td>
+            <td>✅ 原生支持</td>
+            <td>✅ 完美支持</td>
+          </tr>
+          <tr>
+            <td>流式回复</td>
+            <td>✅ 支持</td>
+            <td>✅ 支持</td>
+          </tr>
+          <tr>
+            <td>会话历史管理</td>
+            <td>✅ 基础支持</td>
+            <td>✅ <strong>增强支持</strong></td>
+          </tr>
+          <tr>
+            <td>会话浏览器</td>
+            <td>❌ 无</td>
+            <td>✅ 支持</td>
+          </tr>
+          <tr>
+            <td>恢复对话</td>
+            <td>❌ 无</td>
+            <td>✅ 支持</td>
+          </tr>
+          <tr>
+            <td>附件处理</td>
+            <td>✅ 支持</td>
+            <td>✅ 图片/代码/文本</td>
+          </tr>
+          <tr>
+            <td>服务器部署</td>
+            <td>❌ 不需要</td>
+            <td>❌ 不需要</td>
+          </tr>
+          <tr>
+            <td><strong>GLM-5.2 兼容</strong></td>
+            <td><strong>❌ 限流</strong></td>
+            <td><strong>✅ 正常</strong></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h4>快速配置</h4>
+
+      <pre><code># 1. 安装飞书桥接包（推荐增强版）
+pi install npm:@ryanchan720/pi-feishu-lark
+
+# 2. 在 Pi 中初始化配置
+/feishu setup
+
+# 3. 选择配置方式
+#    - 扫码配置（推荐）：自动创建飞书应用
+#    - 手动配置：输入 App ID 和 App Secret
+
+# 4. 配置完成！在飞书中与 Pi 对话</code></pre>
+
+      <div class="info-box">
+        <strong>增强版特性</strong>：@ryanchan720/pi-feishu-lark 是原版的功能增强 fork，新增会话浏览器、恢复功能等企业级特性，更适合团队协作场景。
+      </div>
+
+      <h4>飞书中使用</h4>
+
+      <p>配置完成后，在飞书中可以直接与 Pi 对话，并通过命令管理会话：</p>
+
+      <pre><code>/sessions    # 浏览所有历史会话
+/session 1   # 查看第 1 个会话详情
+/resume      # 恢复上次的对话</code></pre>
+
+      <h4>企业级价值</h4>
+
+      <ul>
+        <li>✅ <strong>团队协作</strong>：多人共享同一个 AI 助手</li>
+        <li>✅ <strong>会话管理</strong>：历史对话可追溯、可恢复</li>
+        <li>✅ <strong>无服务器</strong>：本地运行 + Webhook，无需额外部署</li>
+        <li>✅ <strong>稳定可靠</strong>：配合 GLM-5.2 不限流，持续可用</li>
+      </ul>
+
+      <hr>
+
       <h3>架构对比</h3>
 
       <h4>Hermes 的集成架构</h4>
@@ -615,6 +715,12 @@ pi-memory    pk-evolve    loop    Plannotator
 
         <dt><strong>Q: 为什么不推荐 Claude Code + GLM-5.2？</strong></dt>
         <dd>A: 功能上可行，但体验有问题。Claude Code 的 Plan Mode 和 Auto Mode 需要手动切换（Shift+Tab），复杂任务要来回切换多次，使用体验割裂。相比之下，Pi Agent 和 Hermes 都是一体化体验，更流畅。</dd>
+
+        <dt><strong>Q: Pi Agent 飞书集成需要服务器吗？</strong></dt>
+        <dd>A: 不需要。Pi Agent 本地运行，飞书通过 Webhook 调用，无需额外部署服务器。扫码配置方式更简单，自动创建飞书应用并完成所有配置。</dd>
+
+        <dt><strong>Q: Pi 飞书集成的会话浏览器有什么用？</strong></dt>
+        <dd>A: 会话浏览器让你能可视化管理所有历史对话：浏览、搜索、恢复之前的会话。这对团队协作场景特别有用，可以追溯和复用之前的 AI 对话记录。</dd>
       </dl>
 
       <hr>
@@ -704,6 +810,8 @@ pi-memory    pk-evolve    loop    Plannotator
 
       <ul>
         <li><a href="https://pi.dev/" target="_blank">Pi Agent 官方文档</a></li>
+        <li><a href="https://pi.dev/packages/pi-feishu-lark" target="_blank">Pi Agent 飞书集成文档</a></li>
+        <li><a href="https://open.feishu.cn/" target="_blank">飞书开放平台</a></li>
         <li><a href="https://open.bigmodel.cn/" target="_blank">GLM-5.2 发布公告</a></li>
         <li><a href="https://github.com/NousResearch/hermes-agent" target="_blank">Hermes Agent GitHub</a></li>
         <li><a href="https://open.bigmodel.cn/dev/api#rate-limit" target="_blank">智谱 API 限流策略说明</a></li>
@@ -721,6 +829,8 @@ pi-memory    pk-evolve    loop    Plannotator
         <span class="tag">Rate Limit</span>
         <span class="tag">AI编程助手</span>
         <span class="tag">Agent替代方案</span>
+        <span class="tag">飞书集成</span>
+        <span class="tag">企业协作</span>
       </div>
     </div>
 
